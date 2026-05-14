@@ -4,12 +4,12 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "24.x"
+    "node": "20.x"
   },
   "scripts": {
-    "start": "npx vite --port 3000",
-    "build": "npx vite build --outDir dist",
-    "build:clean": "rm -rf dist && npx vite build",
+    "start": "vite --port 3000",
+    "build": "vite build --outDir dist",
+    "build:clean": "rm -rf dist && vite build",
     "deploy": "npm run build && npx netlify deploy --prod --dir=dist",
     "preview": "vite preview"
   },
