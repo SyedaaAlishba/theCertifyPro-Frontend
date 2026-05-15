@@ -3,15 +3,10 @@
   to = "/index.html"
   status = 200
 
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate, max-age=0"
-
 [build]
-command = "npm install && npm run build"
-publish = "dist"
+  command = "npm ci && npm run build"
+  publish = "dist"
 
 [build.environment]
+  NODE_VERSION = "20.11.0"
   NPM_CONFIG_PRODUCTION = "false"
-  NODE_VERSION = "20"
