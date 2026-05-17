@@ -33,13 +33,14 @@ const App = () => {
       // Check for token in URL first (for OAuth redirects)
       const params = new URLSearchParams(window.location.search);
       const urlToken = params.get('token');
-      if (urlToken) {
+      if (urlToken && urlToken !== 'null' && urlToken !== 'undefined') {
+        console.log('[App] Extracted Google OAuth token from URL');
         localStorage.setItem('cp_token', urlToken);
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
       const token = localStorage.getItem("cp_token");
-      if (!token) return;
+      if (!token || token === 'null' || token === 'undefined') return;
 
       const cached = localStorage.getItem("cp_user");
       if (cached) {
@@ -109,9 +110,17 @@ const App = () => {
   }, [authReady]);
 
   const onAuthSuccess = (data) => {
-    localStorage.setItem("cp_token", data.token);
-    localStorage.setItem("cp_user", JSON.stringify(data.user));
-    setUser(data.user);
+    console.log('[App] Auth success, received data:', data);
+    if (data && data.token && data.token !== 'null' && data.token !== 'undefined') {
+      localStorage.setItem("cp_token", data.token);
+    } else {
+      console.error('[App] Missing or invalid token in auth response!');
+    }
+    
+    if (data && data.user) {
+      localStorage.setItem("cp_user", JSON.stringify(data.user));
+      setUser(data.user);
+    }
     setPage("dashboard");
   };
 

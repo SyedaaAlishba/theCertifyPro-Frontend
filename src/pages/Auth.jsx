@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { I } from '../components/Icons';
 import { toast } from '../components/Toast';
 import { Divider } from '../components/Shared';
-import { auth } from '../api';
+import { auth, users } from '../api';
 
 export const Auth = ({ onAuthSuccess, setPage }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -20,14 +20,19 @@ export const Auth = ({ onAuthSuccess, setPage }) => {
     const token = params.get('token');
     const error = params.get('error');
     
-    if (token) {
+    if (token && token !== 'null' && token !== 'undefined') {
+      console.log('[Auth] Google OAuth token received in URL');
       localStorage.setItem('cp_token', token);
       
-      // Fetch user data from Render backend
-      auth.me()
-        .then(user => {
-          onAuthSuccess({ token, user });
-          toast("Signed in with Google successfully!");
+      // Fetch user data from Render backend using users.profile() instead of non-existent auth.me()
+      users.profile()
+        .then(res => {
+          if (res && res.user) {
+            onAuthSuccess({ token, user: res.user });
+            toast("Signed in with Google successfully!");
+          } else {
+            throw new Error("Invalid profile response");
+          }
           // Clean URL without refreshing
           window.history.replaceState({}, document.title, window.location.pathname);
         })
@@ -62,6 +67,8 @@ export const Auth = ({ onAuthSuccess, setPage }) => {
 
       const payload = isLogin ? { email, password } : { email, name, password };
       const data = isLogin ? await auth.login(payload) : await auth.register(payload);
+      
+      console.log('[Auth] Response data:', data);
 
       if (isMounted.current) {
         onAuthSuccess(data);

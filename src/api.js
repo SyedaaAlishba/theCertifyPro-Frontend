@@ -5,14 +5,41 @@
 const BASE_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
 
 // Token helpers
-export const getToken = () => localStorage.getItem('cp_token');
-export const setToken = (t) => localStorage.setItem('cp_token', t);
+export const getToken = () => {
+  const t = localStorage.getItem('cp_token');
+  if (!t || t === 'null' || t === 'undefined' || t.trim() === '') return null;
+  return t;
+};
+export const setToken = (t) => {
+  if (t && t !== 'null' && t !== 'undefined') {
+    localStorage.setItem('cp_token', t);
+  }
+};
 export const clearToken = () => localStorage.removeItem('cp_token');
 
 // Core fetch wrapper
 async function request(method, path, body, isFormData = false) {
 
   const token = getToken();
+  
+  // Debug logging
+  console.log(`[API] ${method} ${path}`);
+  if (token) {
+    console.log(`[API] Using token: ${token.substring(0, 15)}...`);
+  } else {
+    console.log(`[API] No token provided for this request`);
+  }
+
+  // Hard failure handling: Prevent protected API calls if token is missing
+  const isPublicPath = path.startsWith('/auth/login') || path.startsWith('/auth/register') || path.startsWith('/auth/forgot') || path.startsWith('/auth/reset');
+  if (!token && !isPublicPath) {
+    console.error('[API] Missing token for protected route! Forcing logout.');
+    clearToken();
+    localStorage.removeItem('cp_user');
+    window.dispatchEvent(new Event('cp:auth-error'));
+    throw new Error('No valid token found. Logging out.');
+  }
+
   const headers = {};
 
   if (token) headers['Authorization'] = `Bearer ${token}`;
