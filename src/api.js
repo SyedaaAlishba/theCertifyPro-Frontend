@@ -11,12 +11,6 @@ export const clearToken = () => localStorage.removeItem('cp_token');
 
 // Core fetch wrapper
 async function request(method, path, body, isFormData = false) {
-  // BLOCK any attempt to fetch Google OAuth endpoint
-  if (path === '/auth/google' || path.includes('/auth/google')) {
-    console.error('Blocked: Google OAuth must use browser redirect, not fetch');
-    window.location.href = `${BASE_URL}/auth/google`;
-    throw new Error('Redirecting to Google OAuth');
-  }
 
   const token = getToken();
   const headers = {};

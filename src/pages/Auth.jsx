@@ -14,29 +14,6 @@ export const Auth = ({ onAuthSuccess, setPage }) => {
 
   const isMounted = useRef(true);
 
-  useEffect(() => {
-    // Force override any existing Google button handlers
-    const fixGoogleButton = () => {
-      const buttons = document.querySelectorAll('button, a');
-      buttons.forEach(btn => {
-        if (btn.textContent && btn.textContent.includes('Continue with Google')) {
-          btn.onclick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
-            return false;
-          };
-          btn.href = `${import.meta.env.VITE_API_URL}/auth/google`;
-        }
-      });
-    };
-    
-    fixGoogleButton();
-    const observer = new MutationObserver(fixGoogleButton);
-    observer.observe(document.body, { childList: true, subtree: true });
-    
-    return () => observer.disconnect();
-  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -174,11 +151,6 @@ export const Auth = ({ onAuthSuccess, setPage }) => {
             href={`${import.meta.env.VITE_API_URL}/auth/google`}
             className="btn-ghost" 
             style={{ width: "100%", padding: "12px", fontSize: 14, display: "flex", justifyContent: "center", alignItems: "center", textDecoration: "none", boxSizing: "border-box" }}
-            onClick={(e) => {
-              // Ensure it works even if something tries to prevent default
-              e.preventDefault();
-              window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
-            }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" style={{ marginRight: 8 }}>
               <path fill="#EA4335" d="M12.48 10.92v3.28h7.84c-.24 1.84-1.88 5.39-7.84 5.39-5.11 0-9.27-4.22-9.27-9.44s4.16-9.44 9.27-9.44c2.91 0 5.4 1.25 6.51 3.42l3.05-3c-1.99-1.84-4.57-2.96-9.56-2.96-6.63 0-12 5.37-12 12s5.37 12 12 12c6.92 0 11.52-4.87 11.52-11.72 0-.79-.08-1.4-.24-2.01h-11.28z" />
